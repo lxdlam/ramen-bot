@@ -97,3 +97,6 @@ Temporary Items
 ## ccls
 .ccls
 .ccls-cache/
+
+## Everything in build should be ignored
+build/
