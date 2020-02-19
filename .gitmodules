@@ -1,0 +1,6 @@
+[submodule "ext/cqcppsdk"]
+	path = ext/cqcppsdk
+	url = https://github.com/cqmoe/cqcppsdk.git
+[submodule "ext/toml11"]
+	path = ext/toml11
+	url = https://github.com/ToruNiina/toml11.git
