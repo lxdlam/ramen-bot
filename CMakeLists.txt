@@ -19,8 +19,8 @@ include(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/cqcppsdk.cmake)
 cq_set_app_id("com.ramen.ramen_bot")
 
 if(MSVC AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
-    cq_add_app(app ${SOURCE_FILES})
+    cq_add_app(ramen_bot ${SOURCE_FILES})
 endif()
 
 set(CQCPPSDK_DEV_MODE ON)
-cq_add_app(ramen_bot ${SOURCE_FILES})
+cq_add_app(ramen_bot_dev ${SOURCE_FILES})

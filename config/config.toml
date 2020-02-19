@@ -1,0 +1,9 @@
+[common]
+superusers = []
+qq = 0
+
+[middleware]
+enabled = ["logging", "parse", "guard", "auth", "plugin"]
+
+[plugin]
+default = "repeat"
