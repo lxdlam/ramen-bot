@@ -1,6 +1,0 @@
-[submodule "lib/cqcppsdk"]
-	path = lib/cqcppsdk
-	url = https://github.com/cqmoe/cqcppsdk.git
-[submodule "lib/toml11"]
-	path = lib/toml11
-	url = https://github.com/ToruNiina/toml11.git
