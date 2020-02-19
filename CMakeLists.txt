@@ -2,17 +2,19 @@ cmake_minimum_required(VERSION 3.10)
 project(ramen_bot)
 
 set(CMAKE_CXX_STANDARD 17)
-set(EXTERNAL_LIBRARY_FIND_PATH ext)
+set(SOURCE_PATH ${CMAKE_SOURCE_DIR}/src)
+set(EXTERNAL_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/ext)
 
-message(STATUS "ext path: ${LIBRARY_FIND_PATH}")
+message(STATUS "src path: ${SOURCE_PATH}")
+message(STATUS "ext path: ${EXTERNAL_LIBRARY_PATH}")
 
-file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES ${SOURCE_PATH}/*.cpp)
 
-include_directories(src)
-include_directories(${EXTERNAL_LIBRARY_FIND_PATH}/cqcppsdk/include)
-include_directories(${EXTERNAL_LIBRARY_FIND_PATH})
+include_directories(${SOURCE_PATH})
+include_directories(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/include)
+include_directories(${EXTERNAL_LIBRARY_PATH})
 
-include(${EXTERNAL_LIBRARY_FIND_PATH}/cqcppsdk/cqcppsdk.cmake)
+include(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/cqcppsdk.cmake)
 
 cq_set_app_id("com.ramen.ramen_bot")
 

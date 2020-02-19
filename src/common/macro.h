@@ -1,3 +1,5 @@
+#pragma once
+
 #define NO_COPY_MOVE(_name)                \
   _name(const _name&) = delete;            \
   _name& operator=(const _name&) = delete; \
