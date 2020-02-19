@@ -1,4 +1,5 @@
 #include <cqcppsdk/cqcppsdk.h>
+#include "common/common_def.h"
 
 CQ_INIT {
   cq::on_private_message([](const cq::PrivateMessageEvent &e) {

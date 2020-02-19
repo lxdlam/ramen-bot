@@ -94,9 +94,5 @@ Temporary Items
 
 # End of https://www.gitignore.io/api/macos,visualstudiocode,cmake,c++
 
-## ccls
-.ccls
-.ccls-cache/
-
-## Everything in build should be ignored
+# Everything in build should be ignored
 build/
