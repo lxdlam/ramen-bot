@@ -2,6 +2,10 @@
 superusers = []
 qq = 0
 
+[whitelist]
+group = []
+user = [] # 这一项默认会继承 superusers
+
 [middleware]
 enabled = ["logging", "parse", "guard", "auth", "plugin"]
 

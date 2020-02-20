@@ -1,11 +1,8 @@
 #pragma once
 
-#include <cinttypes>
 #include <ctime>
 #include <list>
 #include <shared_mutex>
-#include <unordered_map>
-#include <unordered_set>
 
 #include "common/common_def.h"
 #include "common/macro.h"
@@ -122,6 +119,8 @@ inline int TimedTaskManager::register_task(int64_t time,
 }
 
 inline bool TimedTaskManager::remove_task(int task_id) {
+  std::unique_lock<std::shared_mutex> lk(task_mtx_);
+
   auto id_itr = task_id_map_.find(task_id);
   if (id_itr == task_id_map_.end()) {
     return false;
@@ -142,6 +141,8 @@ inline bool TimedTaskManager::remove_task(int task_id) {
 
 inline void TimedTaskManager::invoke_tasks(int64_t time) {
   std::printf("Current Time: %" PRId64 "\n", time);
+
+  std::shared_lock<std::shared_mutex> lk(task_mtx_);
 
   auto itr = task_timed_map_.find(time);
   if (itr == task_timed_map_.end()) {
