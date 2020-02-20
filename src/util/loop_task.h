@@ -19,7 +19,7 @@ public:
   NO_COPY_MOVE(LoopTask);
 
 private:
-  std::thread handle_;
+  std::thread thread_;
   bool exit_;
   std::mutex mtx_;
   std::condition_variable cv_;
@@ -28,7 +28,7 @@ private:
 template <typename F, typename Rep, typename Peroid>
 LoopTask::LoopTask(F&& task, const std::chrono::duration<Rep, Peroid>& duration)
     : exit_(false) {
-  handle_ = std::move(std::thread([&]() {
+  thread_ = std::move(std::thread([&]() {
     do {
       task();
 
@@ -52,8 +52,8 @@ LoopTask::~LoopTask() {
 
   cv_.notify_all();
 
-  if (handle_.joinable()) {
-    handle_.join();
+  if (thread_.joinable()) {
+    thread_.join();
   }
 }
 }  // namespace ramen_bot
