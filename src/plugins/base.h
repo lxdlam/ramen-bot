@@ -3,7 +3,6 @@
 #include "common/common_def.h"
 
 namespace ramen_bot {
-template <std::string name>
 class BasePlugin {
 public:
   BasePlugin() = delete;
@@ -17,8 +16,8 @@ public:
   virtual void enable_all() = 0;
   virtual void disable_all() = 0;
 
-private:
-  std::string name_ = name;  // 插件名，编译时就必须注明
-  std::string command;       // 用于消息分发阶段找到名字的命令
+protected:
+  std::string name_;
+  std::vector<std::string> commands_;
 };
 }  // namespace ramen_bot
