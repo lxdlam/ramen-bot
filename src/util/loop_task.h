@@ -44,7 +44,7 @@ LoopTask::LoopTask(F&& task, const std::chrono::duration<Rep, Peroid>& duration)
   }));
 }
 
-LoopTask::~LoopTask() {
+inline LoopTask::~LoopTask() {
   {
     std::unique_lock<std::mutex> lk;
     exit_ = true;
