@@ -1,6 +1,7 @@
 #include <cqcppsdk/cqcppsdk.h>
 
 #include "core/bot.h"
+#include "model/event.h"
 
 CQ_INIT {
   ramen_bot::Bot::get_instance();
