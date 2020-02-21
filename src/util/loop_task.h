@@ -26,8 +26,7 @@ private:
 };
 
 template <typename F, typename Rep, typename Peroid>
-LoopTask::LoopTask(F&& task, const std::chrono::duration<Rep, Peroid>& duration)
-    : exit_(false) {
+LoopTask::LoopTask(F&& task, const std::chrono::duration<Rep, Peroid>& duration) : exit_(false) {
   thread_ = std::move(std::thread([&]() {
     do {
       task();

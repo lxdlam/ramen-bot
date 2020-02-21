@@ -2,3 +2,4 @@ Language: Cpp
 Standard: Cpp11
 BasedOnStyle: Google
 AccessModifierOffset: -2
+ColumnLimit: 120

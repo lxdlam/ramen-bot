@@ -14,10 +14,8 @@ struct TaskWrapper {
   int64_t task_time;
   std::shared_ptr<std::function<void()>> task_ptr;
 
-  TaskWrapper(int _task_id, int64_t _task_time, std::function<void()>&& f)
-      : task_id(_task_id), task_time(_task_time) {
-    task_ptr = std::make_shared<std::function<void()>>(
-        std::forward<std::function<void()>>(f));
+  TaskWrapper(int _task_id, int64_t _task_time, std::function<void()>&& f) : task_id(_task_id), task_time(_task_time) {
+    task_ptr = std::make_shared<std::function<void()>>(std::forward<std::function<void()>>(f));
   }
 };
 
@@ -40,15 +38,11 @@ private:
   using TaskIter = std::list<TaskWrapper>::iterator;
 
   struct TaskIterHash {
-    size_t operator()(const TaskIter& ti) const {
-      return std::hash<int>()(ti->task_id);
-    }
+    size_t operator()(const TaskIter& ti) const { return std::hash<int>()(ti->task_id); }
   };
 
   struct TaskIterEqual {
-    bool operator()(const TaskIter& lhs, const TaskIter& rhs) const {
-      return lhs->task_id == rhs->task_id;
-    }
+    bool operator()(const TaskIter& lhs, const TaskIter& rhs) const { return lhs->task_id == rhs->task_id; }
   };
 
   std::thread timer_thread_;
@@ -61,14 +55,11 @@ private:
   ThreadPool pool_;
   std::shared_mutex task_mtx_;
   std::list<TaskWrapper> task_container_;
-  std::unordered_map<int64_t,
-                     std::unordered_set<TaskIter, TaskIterHash, TaskIterEqual>>
-      task_timed_map_;
+  std::unordered_map<int64_t, std::unordered_set<TaskIter, TaskIterHash, TaskIterEqual>> task_timed_map_;
   std::unordered_map<int64_t, TaskIter> task_id_map_;
 };
 
-inline TimedTaskManager::TimedTaskManager(size_t worker_size)
-    : shutdown_(false), pool_(worker_size), task_counter_(0) {
+inline TimedTaskManager::TimedTaskManager(size_t worker_size) : shutdown_(false), pool_(worker_size), task_counter_(0) {
   timer_thread_ = std::move(std::thread([&]() {
     do {
       auto current = std::chrono::system_clock::now();
@@ -102,12 +93,10 @@ inline TimedTaskManager::~TimedTaskManager() {
   }
 }
 
-inline int TimedTaskManager::register_task(int64_t time,
-                                           std::function<void()>&& f) {
+inline int TimedTaskManager::register_task(int64_t time, std::function<void()>&& f) {
   std::unique_lock<std::shared_mutex> lk(task_mtx_);
   auto task_id = ++task_counter_;
-  task_container_.emplace_back(task_id, time,
-                               std::forward<std::function<void()>>(f));
+  task_container_.emplace_back(task_id, time, std::forward<std::function<void()>>(f));
 
   auto itr = task_container_.end();
   itr--;

@@ -21,8 +21,7 @@ public:
   NO_COPY_MOVE(ThreadPool);
 
   template <typename F, typename... Args>
-  auto enqueue(F&& f, Args&&... args)
-      -> std::optional<std::future<typename std::result_of<F(Args...)>::type>>;
+  auto enqueue(F&& f, Args&&... args) -> std::optional<std::future<typename std::result_of<F(Args...)>::type>>;
 
 private:
   std::vector<std::thread> workers_;
@@ -39,8 +38,7 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
     -> std::optional<std::future<typename std::result_of<F(Args...)>::type>> {
   using R = typename std::result_of<F(Args...)>::type;
 
-  auto pt = std::make_shared<std::packaged_task<R()>>(
-      std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+  auto pt = std::make_shared<std::packaged_task<R()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
   std::future<R> ret = pt->get_future();
   {
@@ -58,8 +56,7 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
   return ret;
 }
 
-inline ThreadPool::ThreadPool(size_t worker_size)
-    : worker_size_(worker_size), shutdown_(false) {
+inline ThreadPool::ThreadPool(size_t worker_size) : worker_size_(worker_size), shutdown_(false) {
   for (size_t i = 0; i < worker_size; i++) {
     workers_.emplace_back(std::thread([&]() {
       do {
