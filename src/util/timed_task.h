@@ -129,8 +129,6 @@ inline bool TimedTaskManager::remove_task(int task_id) {
 }
 
 inline void TimedTaskManager::invoke_tasks(int64_t time) {
-  std::printf("Current Time: %" PRId64 "\n", time);
-
   std::shared_lock<std::shared_mutex> lk(task_mtx_);
 
   auto itr = task_timed_map_.find(time);

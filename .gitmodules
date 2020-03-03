@@ -4,3 +4,6 @@
 [submodule "ext/toml11"]
 	path = ext/toml11
 	url = https://github.com/ToruNiina/toml11.git
+[submodule "ext/fmt"]
+	path = ext/fmt
+	url = https://github.com/fmtlib/fmt.git

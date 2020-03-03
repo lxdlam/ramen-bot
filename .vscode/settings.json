@@ -98,6 +98,7 @@
         "shared_mutex": "cpp",
         "cfenv": "cpp",
         "cinttypes": "cpp",
-        "__functional_03": "cpp"
+        "__functional_03": "cpp",
+        "format": "cpp"
     }
 }

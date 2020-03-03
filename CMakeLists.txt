@@ -16,6 +16,9 @@ include_directories(${SOURCE_PATH})
 include_directories(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/include)
 include_directories(${EXTERNAL_LIBRARY_PATH})
 
+add_subdirectory(${EXTERNAL_LIBRARY_PATH}/fmt)
+include_directories(${EXTERNAL_LIBRARY_PATH}/fmt/include EXCLUDE_FROM_ALL)
+
 include(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/cqcppsdk.cmake)
 
 cq_set_app_id("com.ramen.ramen_bot")
@@ -24,7 +27,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_COMPILER_FLAGS}")
 
 if(MSVC AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
     cq_add_app(ramen_bot ${SOURCE_FILES})
+    target_link_libraries(ramen_bot PRIVATE fmt::fmt-header-only)
 endif()
 
 set(CQCPPSDK_DEV_MODE ON)
 cq_add_app(ramen_bot_dev ${SOURCE_FILES})
+target_link_libraries(ramen_bot_dev PRIVATE fmt::fmt-header-only)
