@@ -8,7 +8,7 @@ namespace fmt {
  * std::pair formatter
  * 默认是 first,second
  * 可用 option: {:<first>|:<second>|:<seprator>}，缺失任何一个就使用默认参数，可指定各项参数
- * 如果打印 map 的话可以：;
+ * 如果打印 map 的话可以：
  * ```c++
  * std::map<int, std::string> m{{1, "hello"}, {2, "world"}};
  * fmt::print("[({})]", fmt::join(m, "),(")); // "[(1,hello),(2,world)]"
