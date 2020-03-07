@@ -26,6 +26,7 @@ cq_set_app_id("com.ramen.ramen_bot")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_COMPILER_FLAGS}")
 
 if(MSVC AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
+    add_compile_definitions(RELEASE)
     cq_add_app(ramen_bot ${SOURCE_FILES})
     target_link_libraries(ramen_bot PRIVATE fmt::fmt-header-only)
 endif()

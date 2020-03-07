@@ -43,113 +43,93 @@ enum class DetailType {
   kGroupRequest,
 };
 
-class BadEventAccessException : std::exception {};
-
 class Event {
 public:
-  Event() = delete;
+  explicit Event(const cq::PrivateMessageEvent& e) noexcept
+      : Event(e, EventType::kMessage, SourceType::kPrivate, DetailType::kPrivateMessage) {}
 
-  constexpr explicit Event(const cq::PrivateMessageEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kMessage),
-        source_type(SourceType::kPrivate),
-        detail_type(DetailType::kPrivateMessage) {}
+  explicit Event(const cq::GroupMessageEvent& e) noexcept
+      : Event(e, EventType::kMessage, SourceType::kGroup, DetailType::kGroupMessage) {}
 
-  constexpr explicit Event(const cq::GroupMessageEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kMessage),
-        source_type(SourceType::kGroup),
-        detail_type(DetailType::kGroupMessage) {}
+  explicit Event(const cq::DiscussMessageEvent& e) noexcept
+      : Event(e, EventType::kMessage, SourceType::kDiscuss, DetailType::kDiscussMessage) {}
 
-  constexpr explicit Event(const cq::DiscussMessageEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kMessage),
-        source_type(SourceType::kDiscuss),
-        detail_type(DetailType::kDiscussMessage) {}
+  explicit Event(const cq::GroupUploadEvent& e) noexcept
+      : Event(e, EventType::kNotice, SourceType::kGroup, DetailType::kGroupUpload) {}
 
-  constexpr explicit Event(const cq::GroupUploadEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kNotice),
-        source_type(SourceType::kGroup),
-        detail_type(DetailType::kGroupUpload) {}
+  explicit Event(const cq::GroupAdminEvent& e) noexcept
+      : Event(e, EventType::kNotice, SourceType::kGroup, DetailType::kGroupAdmin) {}
 
-  constexpr explicit Event(const cq::GroupAdminEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kNotice),
-        source_type(SourceType::kGroup),
-        detail_type(DetailType::kGroupAdmin) {}
+  explicit Event(const cq::GroupMemberDecreaseEvent& e) noexcept
+      : Event(e, EventType::kNotice, SourceType::kGroup, DetailType::kGroupMemberDecrease) {}
 
-  constexpr explicit Event(const cq::GroupMemberDecreaseEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kNotice),
-        source_type(SourceType::kGroup),
-        detail_type(DetailType::kGroupMemberDecrease) {}
+  explicit Event(const cq::GroupMemberIncreaseEvent& e) noexcept
+      : Event(e, EventType::kNotice, SourceType::kGroup, DetailType::kGroupMemberIncrease) {}
 
-  constexpr explicit Event(const cq::GroupMemberIncreaseEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kNotice),
-        source_type(SourceType::kGroup),
-        detail_type(DetailType::kGroupMemberIncrease) {}
+  explicit Event(const cq::GroupBanEvent& e) noexcept
+      : Event(e, EventType::kNotice, SourceType::kGroup, DetailType::kGroupBan) {}
 
-  constexpr explicit Event(const cq::GroupBanEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kNotice),
-        source_type(SourceType::kGroup),
-        detail_type(DetailType::kGroupBan) {}
+  explicit Event(const cq::FriendAddEvent& e) noexcept
+      : Event(e, EventType::kNotice, SourceType::kPrivate, DetailType::kFriendAdd) {}
 
-  constexpr explicit Event(const cq::FriendAddEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kNotice),
-        source_type(SourceType::kPrivate),
-        detail_type(DetailType::kFriendAdd) {}
+  explicit Event(const cq::FriendRequestEvent& e) noexcept
+      : Event(e, EventType::kRequest, SourceType::kPrivate, DetailType::kFriendRequest) {}
 
-  constexpr explicit Event(const cq::FriendRequestEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kRequest),
-        source_type(SourceType::kPrivate),
-        detail_type(DetailType::kFriendRequest) {}
-
-  constexpr explicit Event(const cq::GroupRequestEvent& e) noexcept
-      : raw_event(e),
-        event_type(EventType::kRequest),
-        source_type(SourceType::kGroup),
-        detail_type(DetailType::kGroupRequest) {}
+  explicit Event(const cq::GroupRequestEvent& e) noexcept
+      : Event(e, EventType::kRequest, SourceType::kGroup, DetailType::kGroupRequest) {}
 
 public:
-  RawEvent get_raw_event() const { return raw_event; }
+  Event(const Event&) = default;
+  Event(Event&&) = default;
+
+  Event& operator=(const Event&) = default;
+  Event& operator=(Event&&) = default;
+
+public:
+  RawEvent get_raw_event() const { return raw_event_; }
 
   template <typename E, std::enable_if_t<is_variant_member<E, RawEvent>::value, int> = 0>
   E& get_event_as() {
-    return std::get<E>(raw_event);
+    return std::get<E>(raw_event_);
   }
+
+  void block() { blocked_ = true; }
+  bool is_blocked() const noexcept { return blocked_; }
 
   // Helpers
 public:
-  constexpr bool is_message() const noexcept { return event_type == EventType::kMessage; }
-  constexpr bool is_notice() const noexcept { return event_type == EventType::kNotice; }
-  constexpr bool is_request() const noexcept { return event_type == EventType::kRequest; }
+  constexpr bool is_message() const noexcept { return event_type_ == EventType::kMessage; }
+  constexpr bool is_notice() const noexcept { return event_type_ == EventType::kNotice; }
+  constexpr bool is_request() const noexcept { return event_type_ == EventType::kRequest; }
 
-  constexpr bool is_private() const noexcept { return source_type == SourceType::kPrivate; }
-  constexpr bool is_group() const noexcept { return source_type == SourceType::kGroup; }
-  constexpr bool is_discuss() const noexcept { return source_type == SourceType::kDiscuss; }
+  constexpr bool is_private() const noexcept { return source_type_ == SourceType::kPrivate; }
+  constexpr bool is_group() const noexcept { return source_type_ == SourceType::kGroup; }
+  constexpr bool is_discuss() const noexcept { return source_type_ == SourceType::kDiscuss; }
 
-  constexpr bool is_private_message() const noexcept { return detail_type == DetailType::kPrivateMessage; }
-  constexpr bool is_group_message() const noexcept { return detail_type == DetailType::kGroupMessage; }
-  constexpr bool is_discuss_message() const noexcept { return detail_type == DetailType::kDiscussMessage; }
-  constexpr bool is_group_upload() const noexcept { return detail_type == DetailType::kGroupUpload; }
-  constexpr bool is_group_admin() const noexcept { return detail_type == DetailType::kGroupAdmin; }
-  constexpr bool is_group_member_decrease() const noexcept { return detail_type == DetailType::kGroupMemberDecrease; }
-  constexpr bool is_group_member_increase() const noexcept { return detail_type == DetailType::kGroupMemberIncrease; }
-  constexpr bool is_group_ban() const noexcept { return detail_type == DetailType::kGroupBan; }
-  constexpr bool is_friend_add() const noexcept { return detail_type == DetailType::kFriendAdd; }
-  constexpr bool is_friend_request() const noexcept { return detail_type == DetailType::kFriendRequest; }
-  constexpr bool is_group_request() const noexcept { return detail_type == DetailType::kGroupRequest; }
+  constexpr bool is_private_message() const noexcept { return detail_type_ == DetailType::kPrivateMessage; }
+  constexpr bool is_group_message() const noexcept { return detail_type_ == DetailType::kGroupMessage; }
+  constexpr bool is_discuss_message() const noexcept { return detail_type_ == DetailType::kDiscussMessage; }
+  constexpr bool is_group_upload() const noexcept { return detail_type_ == DetailType::kGroupUpload; }
+  constexpr bool is_group_admin() const noexcept { return detail_type_ == DetailType::kGroupAdmin; }
+  constexpr bool is_group_member_decrease() const noexcept { return detail_type_ == DetailType::kGroupMemberDecrease; }
+  constexpr bool is_group_member_increase() const noexcept { return detail_type_ == DetailType::kGroupMemberIncrease; }
+  constexpr bool is_group_ban() const noexcept { return detail_type_ == DetailType::kGroupBan; }
+  constexpr bool is_friend_add() const noexcept { return detail_type_ == DetailType::kFriendAdd; }
+  constexpr bool is_friend_request() const noexcept { return detail_type_ == DetailType::kFriendRequest; }
+  constexpr bool is_group_request() const noexcept { return detail_type_ == DetailType::kGroupRequest; }
 
 private:
-  const RawEvent raw_event;
+  // Real Default Initilizer
+  Event(RawEvent&& e, EventType event_type, SourceType source_type, DetailType detail_type)
+      : raw_event_(e), event_type_(event_type), source_type_(source_type), detail_type_(detail_type), blocked_(false) {}
 
-  const EventType event_type;
-  const SourceType source_type;
-  const DetailType detail_type;
+private:
+  RawEvent raw_event_;
+
+  const EventType event_type_;
+  const SourceType source_type_;
+  const DetailType detail_type_;
+
+  bool blocked_;
 };
 }  // namespace ramen_bot
