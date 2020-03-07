@@ -9,7 +9,8 @@ namespace ramen_bot {
 class Bot {
   SINGLETON(Bot);
 
-  bool init();
+public:
+  bool init() { return true; };
 
 private:
   ResourceContext& resource_context_;
