@@ -11,7 +11,7 @@ CQ_INIT {
     }
   });
 
-  cq::on_private_message([](const cq::PrivateMessageEvent &e) {
+  cq::on_private_message([](const cq::PrivateMessageEvent& e) {
     ramen_bot::Event event(e);
     e.block();
 

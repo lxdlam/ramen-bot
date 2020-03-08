@@ -25,7 +25,7 @@ struct formatter<std::pair<T1, T2>> {
   std::string first_option = "", second_option = "", sep = ",";
   std::once_flag first_flag, second_flag, sep_flag;
 
-  constexpr auto parse(format_parse_context &ctx) {
+  constexpr auto parse(format_parse_context& ctx) {
     auto it = ctx.begin(), end = ctx.end();
 
     auto advance = [&]() {
@@ -73,7 +73,7 @@ struct formatter<std::pair<T1, T2>> {
   }
 
   template <typename FormatContext>
-  auto format(const std::pair<T1, T2> &p, FormatContext &ctx) {
+  auto format(const std::pair<T1, T2>& p, FormatContext& ctx) {
     return format_to(ctx.out(), fmt::format("{{{}}}{}{{{}}}", first_option, sep, second_option), p.first, p.second);
   }
 };
