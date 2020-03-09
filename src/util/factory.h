@@ -25,45 +25,30 @@ public:
   Factory& operator=(Factory&&) = delete;
 
   std::unique_ptr<E> make_entity(const K& key, Args&&... args) {
-    auto cm = cm_map_.find(key);
-    if (!cm) {
-      return nullptr;
+    if (auto itr = map_.find(key); itr != map_.end()) {
+      return itr->second(std::forward<Args>(args)...);
     } else {
-      return cm->operator()(std::forward<Args>(args)...);
+      return nullptr;
     }
   }
 
-  bool register_factory(const K& key, CreativeMethodType cm) { return cm_map_.add(key, std::move(cm)); }
+  bool register_factory(const K& key, CreativeMethodType cm) {
+    if (map_.count(key) == 0) {
+      map_.insert({key, std::move(cm)});
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool contains(const K& key) {
+    auto itr = map_.find(key);
+    return itr != map_.end();
+  }
 
 private:
   Factory() = default;
 
-  class {
-  public:
-    std::optional<CreativeMethodType> find(const K& key) {
-      auto& map = get_map_instance();
-      if (auto itr = map.find(key); itr != map.end()) {
-        return itr->second;
-      } else {
-        return std::nullopt;
-      }
-    }
-
-    bool add(const K& key, CreativeMethodType cm) {
-      auto& map = get_map_instance();
-      if (map.count(key) == 0) {
-        map.insert({key, std::move(cm)});
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-  private:
-    static std::unordered_map<KeyType, CreativeMethodType>& get_map_instance() {
-      static std::unordered_map<KeyType, CreativeMethodType> instance_;
-      return instance_;
-    }
-  } cm_map_;
+  std::unordered_map<KeyType, CreativeMethodType> map_;
 };
 }  // namespace ramen_bot

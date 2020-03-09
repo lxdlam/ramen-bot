@@ -4,10 +4,17 @@
 #include "core/bot.h"
 #include "model/event.h"
 
+using namespace toml::literals::toml_literals;
+
+const toml::value kTestConfig = R"(
+[middleware]
+enabled = ["guard"]
+)"_toml;
+
 CQ_INIT {
   cq::on_enable([]() {
-    if (!ramen_bot::Bot::get_instance().init()) {
-      cq::logging::error("初始化", "初始化资源失败！");
+    if (!ramen_bot::Bot::get_instance().init(kTestConfig)) {
+      cq::logging::error("on_enable", "global initialize failed");
       std::exit(1);
     }
   });

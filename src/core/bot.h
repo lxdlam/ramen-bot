@@ -11,7 +11,7 @@ class Bot {
   SINGLETON(Bot);
 
 public:
-  bool init();
+  bool init(const toml::value&);
 
   void process(std::shared_ptr<Event>);
 

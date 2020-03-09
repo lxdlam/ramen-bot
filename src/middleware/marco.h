@@ -2,11 +2,14 @@
 
 #include "base.h"
 
-#define DEFINE_MIDDLEWARE_BEGIN(class__, name__) class class_ : public virtual ramen_bot::Middleware {
+#define DEFINE_MIDDLEWARE_BEGIN(class__, name__) class class__ : public virtual ramen_bot::Middleware {
 #define DEFINE_MIDDLEWARE_END(class__, name__)                                                   \
 public:                                                                                          \
-  static std::unique_ptr<ramen_bot::Middleware> create() { return std::make_shared<class__>(); } \
-  static std::string get_name() { static std::string name_ = name__; }                           \
+  static std::unique_ptr<ramen_bot::Middleware> create() { return std::make_unique<class__>(); } \
+  static std::string get_name() {                                                                \
+    static std::string name_ = name__;                                                           \
+    return name_;                                                                                \
+  }                                                                                              \
   static bool is_registered() { return registered_; }                                            \
                                                                                                  \
 private:                                                                                         \

@@ -99,6 +99,7 @@
         "cfenv": "cpp",
         "cinttypes": "cpp",
         "__functional_03": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "*.ipp": "cpp"
     }
 }

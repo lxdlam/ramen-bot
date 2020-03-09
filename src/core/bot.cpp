@@ -7,7 +7,24 @@
 namespace ramen_bot {
 Bot::Bot() : resource_context_(ResourceContext::get_instance()), pool_(100) {}
 
-bool Bot::init() { return true; }
+bool Bot::init(const toml::value& config) {
+  if (!config.is_table()) {
+    cq::logging::error("Bot", "config is not a table");
+    return false;
+  }
+
+  try {
+    if (!middleware_manager_.init(toml::find<toml::value>(config, "middleware"))) {
+      cq::logging::error("Bot", "init middleware manager failed.");
+      return false;
+    }
+  } catch (std::out_of_range& e) {
+    cq::logging::error("Bot", "middleware section not found in config");
+    return false;
+  }
+
+  return true;
+}
 
 void Bot::process(std::shared_ptr<Event> e) {
 #ifdef RELEASE
@@ -18,7 +35,8 @@ void Bot::process(std::shared_ptr<Event> e) {
 }
 
 void Bot::process_real(std::shared_ptr<Event> e) {
-  auto re = e->get_event_as<cq::PrivateMessageEvent>();
-  cq::send_message(re.target, fmt::format("A message is received. Raw message: {}", re.message));
+  if (!middleware_manager_.run(std::move(e))) {
+    cq::logging::error("Bot", fmt::format("run process failed, message id={}", e));
+  }
 }
 }  // namespace ramen_bot

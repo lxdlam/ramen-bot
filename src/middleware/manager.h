@@ -3,6 +3,7 @@
 #include <toml.hpp>
 
 #include "base.h"
+#include "guard.h"
 #include "common/common_def.h"
 #include "common/macro.h"
 
@@ -15,7 +16,7 @@ class MiddlewareManager {
 public:
   MiddlewareManager();
 
-  bool configure(const toml::value&);
+  bool init(const toml::value&);
 
   bool run(std::shared_ptr<Event>);
 
@@ -23,8 +24,7 @@ private:
   std::optional<std::vector<std::unique_ptr<Middleware>>> make_middlewares();
 
 private:
-  bool configured_;
-  std::vector<std::string> key_list_;
+  std::vector<std::string> middleware_list_;
   std::unordered_map<std::string, toml::value> configurations_;
   MiddlewareFactory& factory_;
 };

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cqcppsdk/cqcppsdk.h>
+#include <fmt/core.h>
+#include <toml.hpp>
+
 #include <algorithm>      // std::max
 #include <cinttypes>      // int64_t, PRI64d...
 #include <cstdio>         // std::printf

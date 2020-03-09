@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/common_def.h"
 #include "model/event.h"
 #include "util/factory.h"
 

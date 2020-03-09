@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cqcppsdk/cqcppsdk.h>
+#include <fmt/format.h>
 
+#include <crossguid/guid.hpp>
 #include <variant>
 
 namespace ramen_bot {
@@ -93,6 +95,8 @@ public:
     return std::get<E>(raw_event_);
   }
 
+  std::string get_id() const { return id_; }
+
   void block() { blocked_ = true; }
   bool is_blocked() const noexcept { return blocked_; }
 
@@ -121,7 +125,12 @@ public:
 private:
   // Real Default Initilizer
   Event(RawEvent&& e, EventType event_type, SourceType source_type, DetailType detail_type)
-      : raw_event_(e), event_type_(event_type), source_type_(source_type), detail_type_(detail_type), blocked_(false) {}
+      : raw_event_(e),
+        event_type_(event_type),
+        source_type_(source_type),
+        detail_type_(detail_type),
+        id_(std::move(xg::newGuid().str())),
+        blocked_(false) {}
 
 private:
   RawEvent raw_event_;
@@ -130,6 +139,28 @@ private:
   const SourceType source_type_;
   const DetailType detail_type_;
 
+  const std::string id_;
+
   bool blocked_;
 };
 }  // namespace ramen_bot
+
+namespace fmt {
+template <>
+struct formatter<ramen_bot::Event> {
+  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+  template <typename FormatContext>
+  auto format(const ramen_bot::Event& e, FormatContext& ctx) {
+    return format_to(ctx.out(), "{}", e.get_id());
+  }
+};
+
+template <>
+struct formatter<std::shared_ptr<ramen_bot::Event>> : formatter<ramen_bot::Event> {
+  template <typename FormatContext>
+  auto format(const std::shared_ptr<ramen_bot::Event>& e, FormatContext& ctx) {
+    return formatter<ramen_bot::Event>::format(*e, ctx);
+  }
+};
+}  // namespace fmt
