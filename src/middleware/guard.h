@@ -12,8 +12,8 @@ DEFINE_MIDDLEWARE_END(GuardMiddleware, "guard")
 
 inline bool GuardMiddleware::process(std::shared_ptr<Event> e) {
   if (e->is_private_message()) {
-    auto re = e->get_event_as<cq::PrivateMessageEvent>();
-    cq::send_message(re.target, fmt::format("enter guard middleware, message id: {}", e));
+    auto& re = e->get_event_as<cq::PrivateMessageEvent>();
+    cq::send_message(re.target, fmt::format("enter guard middleware, message id: {}, message: {}", e, re.message));
     return true;
   }
   e->block();

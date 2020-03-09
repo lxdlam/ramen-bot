@@ -29,12 +29,12 @@ cq_set_app_id("com.ramen.ramen_bot")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_COMPILER_FLAGS}")
 
-if(MSVC AND (CMAKE_SIZEOF_VOID_P EQUAL 4))
+link_libraries(fmt::fmt)
+link_libraries(crossguid)
+
+if(CQ_CAN_BUILD_STD_MODE)
     add_compile_definitions(RELEASE)
-    cq_add_app(ramen_bot ${SOURCE_FILES})
-    target_link_libraries(ramen_bot PRIVATE fmt::fmt-header-only crossguid)
+    cq_add_std_app(${SOURCE_FILES})
 endif()
 
-set(CQCPPSDK_DEV_MODE ON)
-cq_add_app(ramen_bot_dev ${SOURCE_FILES})
-target_link_libraries(ramen_bot_dev PRIVATE fmt::fmt-header-only crossguid)
+cq_add_dev_app(${SOURCE_FILES})
