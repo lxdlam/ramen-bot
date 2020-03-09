@@ -33,7 +33,7 @@ public:
     }
   }
 
-  bool register_entity(const K& key, CreativeMethodType cm) { return cm_map_.add(key, std::move(cm)); }
+  bool register_factory(const K& key, CreativeMethodType cm) { return cm_map_.add(key, std::move(cm)); }
 
 private:
   Factory() = default;

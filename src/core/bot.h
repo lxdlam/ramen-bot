@@ -13,10 +13,10 @@ class Bot {
 public:
   bool init();
 
-  void process(Event);
+  void process(std::shared_ptr<Event>);
 
 private:
-  void process_real(Event);
+  void process_real(std::shared_ptr<Event>);
 
 private:
   ResourceContext& resource_context_;

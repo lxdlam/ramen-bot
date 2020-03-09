@@ -1,5 +1,6 @@
 #include <cqcppsdk/cqcppsdk.h>
 
+#include "common/common_def.h"
 #include "core/bot.h"
 #include "model/event.h"
 
@@ -12,8 +13,8 @@ CQ_INIT {
   });
 
   cq::on_private_message([](const cq::PrivateMessageEvent& e) {
-    ramen_bot::Event event(e);
     e.block();
+    auto event = std::make_shared<ramen_bot::Event>(e);
 
     ramen_bot::Bot::get_instance().process(std::move(event));
   });

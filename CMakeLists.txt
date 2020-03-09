@@ -4,6 +4,7 @@ project(ramen_bot)
 set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_PATH ${CMAKE_SOURCE_DIR}/src)
 set(EXTERNAL_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/ext)
+set(toml11_BUILD_TEST OFF CACHE BOOL "Turn off the toml11 test")
 
 set(CXX_COMPILER_FLAGS "-fmax-errors=5")
 
@@ -14,10 +15,10 @@ file(GLOB_RECURSE SOURCE_FILES ${SOURCE_PATH}/*.cpp)
 
 include_directories(${SOURCE_PATH})
 include_directories(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/include)
-include_directories(${EXTERNAL_LIBRARY_PATH})
+include_directories(${EXTERNAL_LIBRARY_PATH}/toml11)
 
-add_subdirectory(${EXTERNAL_LIBRARY_PATH}/fmt)
-include_directories(${EXTERNAL_LIBRARY_PATH}/fmt/include EXCLUDE_FROM_ALL)
+add_subdirectory(${EXTERNAL_LIBRARY_PATH}/fmt EXCLUDE_FROM_ALL)
+include_directories(fmt::fmt-header-only)
 
 include(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/cqcppsdk.cmake)
 
