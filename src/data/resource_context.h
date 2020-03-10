@@ -11,6 +11,6 @@ class ResourceContext final {
   SINGLETON(ResourceContext);
 
 public:
-  TimedTaskManager timed_task_manager;
+  TimedTaskManager timed_task_manager_;
 };
 }  // namespace ramen_bot

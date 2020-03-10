@@ -1,13 +1,13 @@
 #pragma once
 
+#include <fmt/core.h>
+
 #include <toml.hpp>
 
 #include "base.h"
-#include "guard.h"
 #include "common/common_def.h"
 #include "common/macro.h"
-
-#include <fmt/core.h>
+#include "guard.h"
 
 namespace ramen_bot {
 class MiddlewareManager {
