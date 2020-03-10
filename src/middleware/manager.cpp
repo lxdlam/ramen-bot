@@ -15,6 +15,7 @@ bool MiddlewareManager::init(const toml::value& val) {
       return false;
     }
     middleware_list_.emplace_back(item);
+    configurations_.insert({item, toml::find_or<toml::table>(val, item, {})});
   }
 
   return true;

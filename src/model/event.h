@@ -6,18 +6,15 @@
 #include <crossguid/guid.hpp>
 #include <variant>
 
+#include "message.h"
+#include "util/type_traits.h"
+
 namespace ramen_bot {
 // 用 std::variant 包成一个单独的事件类型，用于统一过 filter
 using RawEvent =
     std::variant<cq::PrivateMessageEvent, cq::GroupMessageEvent, cq::DiscussMessageEvent, cq::GroupUploadEvent,
                  cq::GroupAdminEvent, cq::GroupMemberDecreaseEvent, cq::GroupMemberIncreaseEvent, cq::GroupBanEvent,
                  cq::FriendAddEvent, cq::FriendRequestEvent, cq::GroupRequestEvent>;
-
-template <typename T, typename V>
-struct is_variant_member;
-
-template <typename T, typename... Ts>
-struct is_variant_member<T, std::variant<Ts...>> : std::disjunction<std::is_same<T, Ts>...> {};
 
 enum class EventType {
   kMessage,
@@ -88,39 +85,42 @@ public:
   Event& operator=(Event&&) = default;
 
 public:
-  RawEvent get_raw_event() const { return raw_event_; }
+  RawEvent& get_raw_event() { return raw_event_; }
 
   template <typename E, std::enable_if_t<is_variant_member<E, RawEvent>::value, int> = 0>
   E& get_event_as() {
     return std::get<E>(raw_event_);
   }
 
-  std::string get_id() const { return id_; }
+  template <typename V>
+  constexpr auto visit_raw(V&& v) {
+    return std::visit(std::forward<V>(v), raw_event_);
+  }
+
+  std::string_view get_id() const { return id_; }
 
   void block() { blocked_ = true; }
   bool is_blocked() const noexcept { return blocked_; }
+  void block_raw() {
+    std::visit(overload{
+                   [](cq::PrivateMessageEvent& e) { e.block(); },
+                   [](cq::GroupMessageEvent& e) { e.block(); },
+                   [](cq::DiscussMessageEvent& e) { e.block(); },
+                   [](cq::GroupUploadEvent& e) { e.block(); },
+                   [](cq::GroupAdminEvent& e) { e.block(); },
+                   [](cq::GroupMemberDecreaseEvent& e) { e.block(); },
+                   [](cq::GroupMemberIncreaseEvent& e) { e.block(); },
+                   [](cq::GroupBanEvent& e) { e.block(); },
+                   [](cq::FriendAddEvent& e) { e.block(); },
+                   [](cq::FriendRequestEvent& e) { e.block(); },
+                   [](cq::GroupRequestEvent& e) { e.block(); },
+               },
+               raw_event_);
+  }
 
-  // Helpers
-public:
-  constexpr bool is_message() const noexcept { return event_type_ == EventType::kMessage; }
-  constexpr bool is_notice() const noexcept { return event_type_ == EventType::kNotice; }
-  constexpr bool is_request() const noexcept { return event_type_ == EventType::kRequest; }
-
-  constexpr bool is_private() const noexcept { return source_type_ == SourceType::kPrivate; }
-  constexpr bool is_group() const noexcept { return source_type_ == SourceType::kGroup; }
-  constexpr bool is_discuss() const noexcept { return source_type_ == SourceType::kDiscuss; }
-
-  constexpr bool is_private_message() const noexcept { return detail_type_ == DetailType::kPrivateMessage; }
-  constexpr bool is_group_message() const noexcept { return detail_type_ == DetailType::kGroupMessage; }
-  constexpr bool is_discuss_message() const noexcept { return detail_type_ == DetailType::kDiscussMessage; }
-  constexpr bool is_group_upload() const noexcept { return detail_type_ == DetailType::kGroupUpload; }
-  constexpr bool is_group_admin() const noexcept { return detail_type_ == DetailType::kGroupAdmin; }
-  constexpr bool is_group_member_decrease() const noexcept { return detail_type_ == DetailType::kGroupMemberDecrease; }
-  constexpr bool is_group_member_increase() const noexcept { return detail_type_ == DetailType::kGroupMemberIncrease; }
-  constexpr bool is_group_ban() const noexcept { return detail_type_ == DetailType::kGroupBan; }
-  constexpr bool is_friend_add() const noexcept { return detail_type_ == DetailType::kFriendAdd; }
-  constexpr bool is_friend_request() const noexcept { return detail_type_ == DetailType::kFriendRequest; }
-  constexpr bool is_group_request() const noexcept { return detail_type_ == DetailType::kGroupRequest; }
+  constexpr EventType get_event_type() const noexcept { return event_type_; }
+  constexpr SourceType get_source_type() const noexcept { return source_type_; }
+  constexpr DetailType get_detail_type() const noexcept { return detail_type_; }
 
 private:
   // Real Default Initilizer
@@ -131,6 +131,9 @@ private:
         detail_type_(detail_type),
         id_(std::move(xg::newGuid().str())),
         blocked_(false) {}
+
+public:
+  // Message message_;
 
 private:
   RawEvent raw_event_;
@@ -148,11 +151,32 @@ private:
 namespace fmt {
 template <>
 struct formatter<ramen_bot::Event> {
-  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+  bool full = false;
+  inline static const char* const full_layout =
+      "Event{{id={}, event_type={}, source_type={}, detail_type={}, blocked={}}}";
+
+  constexpr auto parse(format_parse_context& ctx) {
+    auto it = ctx.begin(), end = ctx.end();
+    if (it != end && *it == 'f') {
+      full = true;
+      it++;
+    }
+
+    if (it != end && *it != '}') {
+      throw format_error("invalid format");
+    }
+
+    return it;
+  }
 
   template <typename FormatContext>
   auto format(const ramen_bot::Event& e, FormatContext& ctx) {
-    return format_to(ctx.out(), "{}", e.get_id());
+    if (full) {
+      return format_to(ctx.out(), full_layout, e.get_id(), e.get_event_type(), e.get_source_type(), e.get_detail_type(),
+                       e.is_blocked());
+    } else {
+      return format_to(ctx.out(), "{}", e.get_id());
+    }
   }
 };
 
@@ -161,6 +185,90 @@ struct formatter<std::shared_ptr<ramen_bot::Event>> : formatter<ramen_bot::Event
   template <typename FormatContext>
   auto format(const std::shared_ptr<ramen_bot::Event>& e, FormatContext& ctx) {
     return formatter<ramen_bot::Event>::format(*e, ctx);
+  }
+};
+
+template <>
+struct formatter<ramen_bot::EventType> : formatter<std::string_view> {
+  template <typename FormatContext>
+  auto format(ramen_bot::EventType event_type, FormatContext& ctx) {
+    std::string_view name = "unknown";
+    switch (event_type) {
+      case ramen_bot::EventType::kMessage:
+        name = "message";
+        break;
+      case ramen_bot::EventType::kNotice:
+        name = "notice";
+        break;
+      case ramen_bot::EventType::kRequest:
+        name = "request";
+        break;
+    }
+    return formatter<std::string_view>::format(name, ctx);
+  }
+};
+
+template <>
+struct formatter<ramen_bot::SourceType> : formatter<std::string_view> {
+  template <typename FormatContext>
+  auto format(ramen_bot::SourceType source_type, FormatContext& ctx) {
+    std::string_view name = "unknown";
+    switch (source_type) {
+      case ramen_bot::SourceType::kPrivate:
+        name = "private";
+        break;
+      case ramen_bot::SourceType::kGroup:
+        name = "group";
+        break;
+      case ramen_bot::SourceType::kDiscuss:
+        name = "discuss";
+        break;
+    }
+    return formatter<std::string_view>::format(name, ctx);
+  }
+};
+
+template <>
+struct formatter<ramen_bot::DetailType> : formatter<std::string_view> {
+  template <typename FormatContext>
+  auto format(ramen_bot::DetailType detail_type, FormatContext& ctx) {
+    std::string_view name = "unknown";
+    switch (detail_type) {
+      case ramen_bot::DetailType::kPrivateMessage:
+        name = "private_message";
+        break;
+      case ramen_bot::DetailType::kGroupMessage:
+        name = "group_message";
+        break;
+      case ramen_bot::DetailType::kDiscussMessage:
+        name = "discuss_message";
+        break;
+      case ramen_bot::DetailType::kGroupUpload:
+        name = "group_upload";
+        break;
+      case ramen_bot::DetailType::kGroupAdmin:
+        name = "group_admin";
+        break;
+      case ramen_bot::DetailType::kGroupMemberDecrease:
+        name = "group_member_decrease";
+        break;
+      case ramen_bot::DetailType::kGroupMemberIncrease:
+        name = "group_member_increase";
+        break;
+      case ramen_bot::DetailType::kGroupBan:
+        name = "group_ban";
+        break;
+      case ramen_bot::DetailType::kFriendAdd:
+        name = "friend_add";
+        break;
+      case ramen_bot::DetailType::kFriendRequest:
+        name = "friend_request";
+        break;
+      case ramen_bot::DetailType::kGroupRequest:
+        name = "group_request";
+        break;
+    }
+    return formatter<std::string_view>::format(name, ctx);
   }
 };
 }  // namespace fmt

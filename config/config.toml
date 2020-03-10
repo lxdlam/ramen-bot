@@ -2,12 +2,32 @@
 superusers = []
 qq = 0
 
-[whitelist]
-group = []
-user = [] # 这一项默认会继承 superusers
-
 [middleware]
-enabled = ["logging", "parse", "guard", "auth", "plugin"]
+enabled = ["guard"]
+
+# guard 目前仅提供事件级别的过滤
+# 后续将提供自定义过滤条件的支持
+# 对于不合法的消息，即 parse 失败的消息，guard 也会 drop
+[middleware.guard]
+# 放过的事件，使用 "*" 来通配
+# 事件可混合等级，如 source type 等，任意 match 放过
+# 默认为空列表
+accept_events = ["private_message"]
+# 是否丢弃由机器人发送的 Message 事件，如果改为 false 要注意出现事件循环响应
+# 默认为 true
+drop_self = true
+
+# parse 插件用于解析私聊消息
+# 一条消息的格式应该是 <prefix><command>[<separator><segment>]*
+# cq 码同样会根据前后是否存在 separator 决定是否为一个单独的 segment
+# 目前的切分逻辑较简单，请注意不要同时使用相同的 prefix 和 separator
+# parse 会处理两种消息：聊天 message 和请求 request
+# Notice 将保持原样放入 payload 中
+[middleware.parse]
+# 定义响应的消息前缀，支持正则表达式
+prefix = "/"
+# 分隔符，默认是空格，也可以使用其他的，支持正则表达式
+separator = " "
 
 [plugin]
 default = "repeat"
