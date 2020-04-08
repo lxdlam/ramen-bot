@@ -96,3 +96,7 @@ Temporary Items
 
 # Everything in build should be ignored
 build/
+# ccls cache should be ignored too
+.ccls-cache/
+# Also, the clangd cache
+.clangd/

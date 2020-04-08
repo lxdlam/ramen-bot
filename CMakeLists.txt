@@ -5,7 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_PATH ${CMAKE_SOURCE_DIR}/src)
 set(EXTERNAL_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/ext)
 
-set(CXX_COMPILER_FLAGS "-fmax-errors=5")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CXX_COMPILER_FLAGS "-ferror-limit=3")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(CXX_COMPILER_FLAGS "-fmax-errors=3")
+endif()
 
 message(STATUS "src path: ${SOURCE_PATH}")
 message(STATUS "ext path: ${EXTERNAL_LIBRARY_PATH}")
@@ -16,7 +20,7 @@ include_directories(${SOURCE_PATH})
 include_directories(${EXTERNAL_LIBRARY_PATH}/cqcppsdk/include)
 include_directories(${EXTERNAL_LIBRARY_PATH}/toml11)
 
-set(CROSSGUID_TESTS OFF)
+set(CROSSGUID_TESTS OFF CACHE BOOL "Disable crossguid tests")
 add_subdirectory(${EXTERNAL_LIBRARY_PATH}/crossguid)
 include_directories(${EXTERNAL_LIBRARY_PATH}/crossguid/include)
 

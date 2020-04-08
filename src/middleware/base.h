@@ -9,6 +9,7 @@ class Middleware {
 public:
   virtual bool process(std::shared_ptr<Event>) = 0;
   virtual bool configure(const toml::value&) = 0;
+  virtual ~Middleware() = default;
 };
 
 using MiddlewareFactory = Factory<std::string, Middleware>;

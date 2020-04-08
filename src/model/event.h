@@ -138,11 +138,11 @@ public:
 private:
   RawEvent raw_event_;
 
-  const EventType event_type_;
-  const SourceType source_type_;
-  const DetailType detail_type_;
+  EventType event_type_;
+  SourceType source_type_;
+  DetailType detail_type_;
 
-  const std::string id_;
+  std::string id_;
 
   bool blocked_;
 };
